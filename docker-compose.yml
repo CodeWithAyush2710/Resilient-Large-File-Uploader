@@ -1,0 +1,52 @@
+name: upload-service
+
+services:
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=ayush2710
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - upload-service
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - upload-service
+    ports:
+      - "3001:3001"
+    command: sh -c "npx prisma db push && npm run dev -- --host"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - upload-service
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+networks:
+  upload-service:
+    driver: bridge

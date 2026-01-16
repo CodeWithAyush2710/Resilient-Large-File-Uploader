@@ -1,0 +1,41 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Upload {
+  id          String   @id @default(uuid())
+  filename    String
+  totalSize   BigInt   @map("total_size")
+  totalChunks Int      @map("total_chunks")
+  status      Status   @default(UPLOADING)
+  finalHash   String?  @map("final_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+  chunks      Chunk[]
+
+  @@map("uploads")
+}
+
+model Chunk {
+  id         String   @id @default(uuid())
+  uploadId   String   @map("upload_id")
+  chunkIndex Int      @map("chunk_index")
+  status     Status   @default(UPLOADING)
+  receivedAt DateTime @default(now()) @map("received_at")
+  upload     Upload   @relation(fields: [uploadId], references: [id])
+
+  @@unique([uploadId, chunkIndex])
+  @@map("chunks")
+}
+
+enum Status {
+  UPLOADING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
