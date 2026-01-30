@@ -1,5 +1,5 @@
 # Resilient Large File Uploader - Technical Documentation
-![Resilient Large File Uploader Demo](assets/file_uploader.png)
+![Resilient Large File Uploader Demo](File_Uploader.png)
 This project implements a robust, resumable file upload system designed to handle large files (ZIP archives) with resilience against network interruptions.
 
 ## 1. File Integrity & Validation
